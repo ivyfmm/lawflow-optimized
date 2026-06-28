@@ -1,1 +1,124 @@
-<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><title>LawFlow AI</title><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/ivyfmm/lawflow-optimized@main/assets/index-B-SYtpNS.css"></head><body class="bg-gray-50"><div class="max-w-7xl mx-auto px-4 py-8"><h1 class="text-2xl font-bold text-gray-900">LawFlow AI - 制裁扫描</h1><div class="bg-white rounded-xl p-6 shadow-sm border border-gray-200 mt-6"><div class="space-y-4"><div><label class="block text-sm font-medium text-gray-700 mb-1">目标国家</label><select id="scan-country" class="w-full p-3 border-2 border-gray-200 rounded-lg"><option value="">选择国家...</option><option value="RU">俄罗斯</option><option value="IR">伊朗</option><option value="KP">朝鲜</option><option value="SY">叙利亚</option><option value="CN">中国</option><option value="US">美国</option><option value="BY">白俄罗斯</option><option value="VE">委内瑞拉</option><option value="CU">古巴</option><option value="MM">缅甸</option><option value="AF">阿富汗</option></select></div><div><label class="block text-sm font-medium text-gray-700 mb-1">产品类别</label><input type="text" id="scan-product" class="w-full p-3 border-2 border-gray-200 rounded-lg" placeholder="如：芯片、无人机..."></div><div><label class="block text-sm font-medium text-gray-700 mb-1">交易对手</label><input type="text" id="scan-entity" class="w-full p-3 border-2 border-gray-200 rounded-lg" placeholder="输入公司名..."></div><button id="btn-scan" class="w-full bg-indigo-600 text-white p-3 rounded-lg font-semibold cursor-pointer">开始扫描</button></div></div><div id="scan-result" class="bg-gray-50 rounded-xl p-6 mt-6" style="display:none"><h3 class="font-bold text-lg mb-4">扫描报告</h3><div id="scan-details"></div></div><div id="scan-placeholder" style="display:flex;align-items:center;justify-content:center;height:200px;background:#f3f4f6;border-radius:12px;color:#9ca3af;margin-top:24px">选择参数并点击「开始扫描」查看结果</div></div><script src="https://cdn.jsdelivr.net/gh/ivyfmm/lawflow-optimized@main/sanction-scanner-enhanced.js"></script><script src="https://cdn.jsdelivr.net/gh/ivyfmm/lawflow-optimized@main/law-shield-enhanced.js"></script><script>document.getElementById('btn-scan').addEventListener('click',()=>{const country=document.getElementById('scan-country').value;if(!country){alert('请选择目标国家');return}const report=window.LawFlowSanctionEnhanced.generateSanctionReport(country,document.getElementById('scan-product').value,document.getElementById('scan-entity').value,[]);const result=document.getElementById('scan-result');result.style.display='block';document.getElementById('scan-placeholder').style.display='none';document.getElementById('scan-details').innerHTML=`<pre style="background:#1f2937;color:#f3f4f6;padding:16px;border-radius:8px;overflow:auto;font-size:12px">${JSON.stringify(report,null,2)}</pre>`;});</script></body></html>
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LawFlow AI - 智能法律合规平台（增强版）</title>
+<meta name="description" content="企业级法律合规AI工具：制裁扫描、法律护盾、合同审查、出口管制">
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/ivyfmm/lawflow-optimized@main/assets/index-B-SYtpNS.css">
+<style>
+.enhanced-badge{display:inline-flex;align-items:center;gap:4px;background:#10b981;color:#fff;font-size:11px;padding:2px 8px;border-radius:12px;font-weight:600}.enhanced-badge::before{content:"★"}
+.risk-score{font-size:48px;font-weight:700}.risk-critical{color:#dc2626}.risk-high{color:#ea580c}.risk-medium{color:#ca8a04}.risk-low{color:#16a34a}
+.connection-tag{display:inline-flex;align-items:center;gap:4px;padding:4px 12px;border-radius:16px;font-size:12px;background:#f3f4f6;border:1px solid #e5e7eb;cursor:pointer;transition:all .2s}.connection-tag:hover{background:#e0e7ff;border-color:#6366f1}.connection-tag.active{background:#6366f1;color:#fff;border-color:#6366f1}
+.entity-card{border-left:4px solid;padding:16px;background:#f9fafb;border-radius:0 8px 8px 0;margin-bottom:12px}.entity-card.critical{border-left-color:#dc2626}.entity-card.high{border-left-color:#ea580c}.entity-card.medium{border-left-color:#ca8a04}
+.tool-card{border:1px solid #e5e7eb;border-radius:12px;padding:20px;margin-bottom:16px;background:#fff}
+.tool-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px}
+.tool-category{font-size:12px;color:#6366f1;font-weight:600;text-transform:uppercase}
+.success-rate{font-size:12px;padding:4px 10px;border-radius:12px;background:#dcfce7;color:#166534}
+.timeline-section{margin-bottom:24px}.timeline-title{font-size:14px;font-weight:600;color:#374151;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.timeline-dot{width:10px;height:10px;border-radius:50%}.timeline-dot.immediate{background:#dc2626}.timeline-dot.short{background:#ea580c}.timeline-dot.long{background:#6b7280}
+.checklist-item{display:flex;align-items:flex-start;gap:12px;padding:10px 0;border-bottom:1px solid #f3f4f6}.checklist-item:last-child{border-bottom:none}
+.check-box{width:18px;height:18px;border:2px solid #d1d5db;border-radius:4px;flex-shrink:0;margin-top:2px}
+.tab-btn{padding:8px 16px;border:none;background:transparent;color:#6b7280;font-size:14px;cursor:pointer;border-bottom:2px solid transparent;transition:all .2s}.tab-btn:hover{color:#111827}.tab-btn.active{color:#6366f1;border-bottom-color:#6366f1;font-weight:600}
+.template-card{border:1px dashed #d1d5db;border-radius:8px;padding:16px;text-align:center;cursor:pointer;transition:all .2s}.template-card:hover{border-color:#6366f1;background:#eef2ff}
+.search-input{width:100%;padding:12px 16px;border:2px solid #e5e7eb;border-radius:8px;font-size:14px;transition:border-color .2s}.search-input:focus{outline:none;border-color:#6366f1}
+.btn-primary{background:#6366f1;color:#fff;padding:12px 24px;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;transition:background .2s}.btn-primary:hover{background:#4f46e5}
+.btn-secondary{background:#f3f4f6;color:#374151;padding:12px 24px;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;transition:background .2s}.btn-secondary:hover{background:#e5e7eb}
+.result-panel{background:#f9fafb;border-radius:12px;padding:24px;margin-top:24px}
+.section-title{font-size:18px;font-weight:700;color:#111827;margin-bottom:16px}
+.placeholder-box{display:flex;align-items:center;justify-content:center;height:200px;background:#f3f4f6;border-radius:12px;color:#9ca3af;font-size:14px}
+</style>
+</head>
+<body class="bg-gray-50">
+<div id="app">
+<header class="bg-white border-b border-gray-200 sticky top-0 z-50">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center"><span class="text-white font-bold text-sm">L</span></div>
+<div><h1 class="text-lg font-bold text-gray-900">LawFlow AI</h1><p class="text-xs text-gray-500">智能法律合规平台</p></div>
+<span class="enhanced-badge">增强版 v2.0</span>
+</div>
+<nav class="flex gap-1">
+<button class="tab-btn active" data-tab="sanction">制裁扫描</button>
+<button class="tab-btn" data-tab="shield">法律护盾</button>
+<button class="tab-btn" data-tab="contract">合同审查</button>
+<button class="tab-btn" data-tab="access">准入查询</button>
+<button class="tab-btn" data-tab="compliance">合规助手</button>
+<button class="tab-btn" data-tab="radar">热点雷达</button>
+<button class="tab-btn" data-tab="market">选品选市场</button>
+</nav>
+</div>
+</header>
+<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+<div id="tab-sanction" class="tab-content">
+<div class="mb-6"><h2 class="text-2xl font-bold text-gray-900">制裁扫描 <span class="text-sm font-normal text-gray-500">—— 识别最高风险</span></h2><p class="text-gray-600 mt-1">覆盖50+制裁实体、30+国家、5维连接点风险矩阵、ECCN出口管制分类</p></div>
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+<div class="lg:col-span-1 space-y-4">
+<div class="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
+<h3 class="font-semibold text-gray-900 mb-4">扫描参数</h3>
+<div class="space-y-4">
+<div><label class="block text-sm font-medium text-gray-700 mb-1">目标国家</label><select id="scan-country" class="search-input"><option value="">选择国家...</option><option value="RU">俄罗斯</option><option value="IR">伊朗</option><option value="KP">朝鲜</option><option value="SY">叙利亚</option><option value="CN">中国</option><option value="US">美国</option><option value="BY">白俄罗斯</option><option value="VE">委内瑞拉</option><option value="CU">古巴</option><option value="MM">缅甸</option><option value="AF">阿富汗</option><option value="DE">德国</option><option value="JP">日本</option><option value="IN">印度</option><option value="BR">巴西</option></select></div>
+<div><label class="block text-sm font-medium text-gray-700 mb-1">产品类别</label><input type="text" id="scan-product" class="search-input" placeholder="如：芯片、无人机、通信设备..."></div>
+<div><label class="block text-sm font-medium text-gray-700 mb-1">交易对手名称</label><input type="text" id="scan-entity" class="search-input" placeholder="输入公司名进行实体筛查..."></div>
+<div><label class="block text-sm font-medium text-gray-700 mb-2">连接点（多选）</label><div class="flex flex-wrap gap-2" id="connection-points"><span class="connection-tag" data-id="usd_settlement">💵 美元结算</span><span class="connection-tag" data-id="swift_channel">🌐 SWIFT</span><span class="connection-tag" data-id="us_tech_content">🔧 美国技术</span><span class="connection-tag" data-id="us_platform">🛒 美国平台</span><span class="connection-tag" data-id="us_person">👤 美国人参与</span><span class="connection-tag" data-id="rmb_settlement">💴 人民币</span><span class="connection-tag" data-id="goods_transit_us">📦 经美转运</span><span class="connection-tag" data-id="end_use_military">🎯 军事用途</span></div></div>
+<button id="btn-scan" class="btn-primary w-full">开始扫描</button>
+</div>
+</div>
+</div>
+<div class="lg:col-span-2">
+<div id="scan-result" class="result-panel" style="display:none">
+<div class="flex items-center justify-between mb-6"><h3 class="section-title">扫描报告</h3><span id="scan-time" class="text-sm text-gray-500"></span></div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+<div class="bg-white rounded-xl p-6 text-center border border-gray-200"><div class="text-sm text-gray-500 mb-2">综合风险评分</div><div id="risk-score" class="risk-score">0</div><div id="risk-label" class="text-lg font-semibold mt-2">-</div></div>
+<div class="bg-white rounded-xl p-6 border border-gray-200"><div class="text-sm text-gray-500 mb-3">风险维度</div><div id="risk-factors" class="space-y-2"></div></div>
+</div>
+<div id="scan-details" class="space-y-4"></div>
+</div>
+<div id="scan-placeholder" class="placeholder-box">选择参数并点击「开始扫描」查看结果</div>
+</div>
+</div>
+</div>
+<div id="tab-shield" class="tab-content" style="display:none">
+<div class="mb-6"><h2 class="text-2xl font-bold text-gray-900">法律护盾 <span class="text-sm font-normal text-gray-500">—— 反制裁方案生成</span></h2><p class="text-gray-600 mt-1">基于制裁扫描结果，自动匹配19个法律工具，生成可执行方案与文书</p></div>
+<div id="shield-content" class="placeholder-box">先完成制裁扫描，法律护盾将基于扫描结果生成定制方案</div>
+</div>
+<div id="tab-contract" class="tab-content" style="display:none">
+<div class="mb-6"><h2 class="text-2xl font-bold text-gray-900">合同审查</h2><p class="text-gray-600 mt-1">AI辅助合同审查：风险条款识别、制裁合规条款建议、修改意见</p></div>
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+<div class="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
+<h3 class="font-semibold text-gray-900 mb-4">粘贴合同文本</h3>
+<textarea id="contract-text" class="search-input" rows="12" placeholder="在此粘贴合同文本..."></textarea>
+<button id="btn-contract" class="btn-primary w-full mt-4">开始审查</button>
+</div>
+<div id="contract-result" class="placeholder-box">合同审查结果将在此显示</div>
+</div>
+</div>
+<div id="tab-access" class="tab-content" style="display:none">
+<div class="mb-6"><h2 class="text-2xl font-bold text-gray-900">准入查询</h2><p class="text-gray-600 mt-1">产品出口管制分类、目标市场准入条件、所需认证与许可</p></div>
+<div class="placeholder-box">准入查询功能正在开发中...</div>
+</div>
+<div id="tab-compliance" class="tab-content" style="display:none">
+<div class="mb-6"><h2 class="text-2xl font-bold text-gray-900">合规助手</h2><p class="text-gray-600 mt-1">AI法律问答：制裁法、出口管制、国际商事合同等问题解答</p></div>
+<div class="placeholder-box">合规助手功能正在开发中...</div>
+</div>
+<div id="tab-radar" class="tab-content" style="display:none">
+<div class="mb-6"><h2 class="text-2xl font-bold text-gray-900">热点雷达</h2><p class="text-gray-600 mt-1">全球制裁政策动态、出口管制法规更新、合规风险预警</p></div>
+<div class="placeholder-box">热点雷达功能正在开发中...</div>
+</div>
+<div id="tab-market" class="tab-content" style="display:none">
+<div class="mb-6"><h2 class="text-2xl font-bold text-gray-900">选品选市场</h2><p class="text-gray-600 mt-1">基于制裁风险评估的产品与市场推荐</p></div>
+<div class="placeholder-box">选品选市场功能正在开发中...</div>
+</div>
+</main>
+<footer class="bg-white border-t border-gray-200 mt-12">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+<p class="text-center text-sm text-gray-500">LawFlow AI 增强版 v2.0 | 法律工具库：19个 | 实体数据库：50+ | 国家数据：30+ | 文书模板：10种</p>
+</div>
+</footer>
+</div>
+<script src="https://cdn.jsdelivr.net/gh/ivyfmm/lawflow-optimized@main/sanction-scanner-enhanced.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/ivyfmm/lawflow-optimized@main/law-shield-enhanced.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/ivyfmm/lawflow-optimized@main/ui-app.js"></script>
+</body>
+</html>
